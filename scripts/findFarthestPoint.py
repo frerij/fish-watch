@@ -13,6 +13,6 @@ def findFarthestPoint(csvFilePath):
                 max = length
         return max
     
-csvFilePath = r'./fishPos_20190604.csv'
+csvFilePath = r'./data/fishPos_20190604.csv'
 
 print(findFarthestPoint(csvFilePath))

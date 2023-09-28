@@ -1,21 +1,48 @@
 import { useMemo, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import json from "./data.json";
-import { MapContainer, TileLayer, useMap, Marker, Popup } from "react-leaflet";
+import json from "./data/data.json";
+import collection from "./data/data_collection.json";
+import release from "./data/data_release.json";
+import {
+  MapContainer,
+  TileLayer,
+  useMap,
+  Marker,
+  Popup,
+  CircleMarker,
+} from "react-leaflet";
+import { IconDot } from "./Icon";
 
 function App() {
   const [input, setInput] = useState("");
-  const count = useMemo(() => {
+  const collectedFishCount = collection.length;
+
+  const { count, points } = useMemo(() => {
     let i = 0;
+    const points: { location: number[]; mse: string }[] = [];
     json.forEach((row) => {
       if (row["Tag_code"] === input) {
         i++;
+        points.push({ location: [row["lat"], row["lon"]], mse: row["MSE"] });
       }
     });
-    return i;
+    return { count: i, points };
   }, [input]);
+
+  const pointMarkers = useMemo(() => {
+    return points.map((point) => {
+      return (
+        <CircleMarker
+          pathOptions={{ fill: true, fillColor: "red", stroke: false }}
+          radius={3}
+          center={point.location}
+          key={point.toString()}
+        >
+          <Popup>mse: {point.mse}</Popup>
+        </CircleMarker>
+      );
+    });
+  }, [points]);
 
   const uniqueFish = useMemo(() => {
     const fish: Record<string, boolean> = {};
@@ -28,6 +55,38 @@ function App() {
     return Object.keys(fish).length;
   }, []);
 
+  const speciesTypes = useMemo(() => {
+    const species: Array<string> = [];
+    release.forEach((row) => {
+      const name = row["Species Name"];
+      if (!species.includes(name)) {
+        species.push(name);
+      }
+    });
+    return species;
+  }, []);
+
+  const { tagCount, fishCount } = useMemo(() => {
+    const tagCodes: Record<string, boolean> = {};
+    const fishTags: Record<string, boolean> = {};
+    let tagCount = 0;
+    let fishCount = 0;
+
+    release.forEach((row) => {
+      const fishTag = row["Tag Code"];
+      const acousticTagShort = row["Acoustic Tag"];
+      if (acousticTagShort !== "" && !tagCodes[acousticTagShort]) {
+        tagCodes[acousticTagShort] = true;
+        tagCount++;
+      }
+      if (!fishTags[fishTag]) {
+        fishTags[fishTag] = true;
+        fishCount++;
+      }
+    });
+    return { tagCount, fishCount };
+  }, []);
+
   return (
     <>
       <input
@@ -37,9 +96,14 @@ function App() {
       ></input>
       <div>count: {count}</div>
       <div>unique fish: {uniqueFish}</div>
+      <div>number of fish with acoustic tags: {tagCount}</div>
+      <div>
+        fish released: {fishCount} fish collected: {collectedFishCount}
+      </div>
+      <div>Types of fish: {speciesTypes}</div>
       <MapContainer
         center={[47.609946, -122.255315]}
-        zoom={13}
+        zoom={16}
         scrollWheelZoom={false}
         style={{ minHeight: "50vh", minWidth: "60vw" }}
       >
@@ -52,11 +116,7 @@ function App() {
             A pretty CSS3 popup. <br /> Easily customizable.
           </Popup>
         </Marker>
-        <Marker position={[json[0]["lat"], json[0]["lon"]]} />
-        <Marker position={[json[5]["lat"], json[5]["lon"]]} />
-        <Marker position={[json[10]["lat"], json[10]["lon"]]} />
-        <Marker position={[json[10000]["lat"], json[10000]["lon"]]} />
-        <Marker position={[json[1000000]["lat"], json[1000000]["lon"]]} />
+        {pointMarkers}
       </MapContainer>
     </>
   );
