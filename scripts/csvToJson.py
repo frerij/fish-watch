@@ -28,11 +28,16 @@ def make_json(csvFilePath, jsonFilePath):
 	with open(csvFilePath, encoding='utf-8') as csvf:
 		csvReader = csv.DictReader(csvf)
 		
-		for rows in csvReader:
-			data.append(rows)
-			newPoint = offsetFromCenter(float(rows["X"]), float(rows["Y"]))
+		for row in csvReader:
+			mse = float(row["MSE"])
+			if (mse > 200):
+				continue
+
+			data.append(row)
+			newPoint = offsetFromCenter(float(row["X"]), float(row["Y"]))
 			data[-1]["lat"] = newPoint[0]
 			data[-1]["lon"] = newPoint[1]
+			data[-1]["MSE"] = float(data[-1]["MSE"])
 			
 
 	# Open a json writer, and use the json.dumps()
@@ -44,8 +49,8 @@ def make_json(csvFilePath, jsonFilePath):
 
 # Decide the two file paths according to your
 # computer system
-csvFilePath = r'./fishPos_20190604.csv'
-jsonFilePath = r'../src/data.json'
+csvFilePath = r'./data/fishPos_20190604.csv'
+jsonFilePath = r'../src/data/data.json'
 
 # Call the make_json function
 make_json(csvFilePath, jsonFilePath)

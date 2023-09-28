@@ -26,3 +26,8 @@ scripts/**.json
 *.njsproj
 *.sln
 *.sw?
+
+# Data files too large for git
+src/data/*
+scripts/data/*
+
