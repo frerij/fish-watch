@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import "./App.css";
-import json from "./data/data.json";
+import fishMap from "./data/fishMap.json";
 import collection from "./data/data_collection.json";
 import release from "./data/data_release.json";
 import {
@@ -11,22 +11,19 @@ import {
   Popup,
   CircleMarker,
 } from "react-leaflet";
-import { IconDot } from "./Icon";
 
 function App() {
   const [input, setInput] = useState("");
   const collectedFishCount = collection.length;
 
   const { count, points } = useMemo(() => {
-    let i = 0;
-    const points: { location: number[]; mse: string }[] = [];
-    json.forEach((row) => {
-      if (row["Tag_code"] === input) {
-        i++;
-        points.push({ location: [row["lat"], row["lon"]], mse: row["MSE"] });
-      }
-    });
-    return { count: i, points };
+    if (!fishMap[input] || !fishMap[input]["positions"])
+      return { count: 0, points: [] };
+
+    return {
+      count: fishMap[input]["positions"].length,
+      points: fishMap[input]["positions"],
+    };
   }, [input]);
 
   const pointMarkers = useMemo(() => {
@@ -35,25 +32,14 @@ function App() {
         <CircleMarker
           pathOptions={{ fill: true, fillColor: "red", stroke: false }}
           radius={3}
-          center={point.location}
-          key={point.toString()}
+          center={[point.lat, point.lon]}
+          key={`${point.lat}${point.lon}${point.mse}`}
         >
           <Popup>mse: {point.mse}</Popup>
         </CircleMarker>
       );
     });
   }, [points]);
-
-  const uniqueFish = useMemo(() => {
-    const fish: Record<string, boolean> = {};
-    json.forEach((row) => {
-      const tagCode = row["Tag_code"];
-      if (!fish[tagCode]) {
-        fish[tagCode] = true;
-      }
-    });
-    return Object.keys(fish).length;
-  }, []);
 
   const speciesTypes = useMemo(() => {
     const species: Array<string> = [];
@@ -95,7 +81,6 @@ function App() {
         value={input}
       ></input>
       <div>count: {count}</div>
-      <div>unique fish: {uniqueFish}</div>
       <div>number of fish with acoustic tags: {tagCount}</div>
       <div>
         fish released: {fishCount} fish collected: {collectedFishCount}

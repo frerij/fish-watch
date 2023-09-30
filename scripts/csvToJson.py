@@ -22,23 +22,33 @@ def offsetFromCenter(x, y):
 def make_json(csvFilePath, jsonFilePath):
 	
 	# create a dictionary
-	data = []
+	data = {}
 	
 	# Open a csv reader called DictReader
 	with open(csvFilePath, encoding='utf-8') as csvf:
 		csvReader = csv.DictReader(csvf)
 		
+		
 		for row in csvReader:
+			# removing outliers above selected mse
 			mse = float(row["MSE"])
 			if (mse > 200):
 				continue
 
-			data.append(row)
 			newPoint = offsetFromCenter(float(row["X"]), float(row["Y"]))
-			data[-1]["lat"] = newPoint[0]
-			data[-1]["lon"] = newPoint[1]
-			data[-1]["MSE"] = float(data[-1]["MSE"])
-			
+			newEntry = {
+				"dateTime": row["Date_time"], 
+			   	"lat": newPoint[0], 
+			    "lon": newPoint[1], 
+			    "mse": row["MSE"], 
+			    "x": row["X"], 
+			    "y": row["Y"],
+				"z": row["Z"]
+				}
+			if (row["Tag_code"] in data):
+				data[row["Tag_code"]]["positions"].append(newEntry)
+			else:
+				data[row["Tag_code"]] = {"positions": [newEntry], "species": ""}
 
 	# Open a json writer, and use the json.dumps()
 	# function to dump data
@@ -50,7 +60,7 @@ def make_json(csvFilePath, jsonFilePath):
 # Decide the two file paths according to your
 # computer system
 csvFilePath = r'./data/fishPos_20190604.csv'
-jsonFilePath = r'../src/data/data.json'
+jsonFilePath = r'../src/data/fishMap.json'
 
 # Call the make_json function
 make_json(csvFilePath, jsonFilePath)

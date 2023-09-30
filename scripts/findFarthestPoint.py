@@ -1,6 +1,8 @@
 import csv
 import math
 
+# to find farthest offset from origin to 
+# determine distance scale to fit map area
 def findFarthestPoint(csvFilePath):
     with open(csvFilePath, encoding='utf-8') as csvf:
         csvReader = csv.DictReader(csvf)
