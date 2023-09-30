@@ -14,6 +14,7 @@ def make_json(csvFilePath, jsonFilePath):
 		csvReader = csv.DictReader(csvf)
 		
 		for row in csvReader:
+			# for collection data run only
 			if (row["Site Name"] == "Final Collection Point "):
 			    data.append(row)
 

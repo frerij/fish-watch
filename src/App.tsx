@@ -26,6 +26,8 @@ function App() {
     };
   }, [input]);
 
+  const fishCodes = Object.keys(fishMap);
+
   const pointMarkers = useMemo(() => {
     return points.map((point) => {
       return (
@@ -75,34 +77,72 @@ function App() {
 
   return (
     <>
-      <input
-        type="text"
-        onChange={(e) => setInput(e.target.value)}
-        value={input}
-      ></input>
-      <div>count: {count}</div>
-      <div>number of fish with acoustic tags: {tagCount}</div>
-      <div>
-        fish released: {fishCount} fish collected: {collectedFishCount}
+      <div className="flex flex-row gap-10">
+        <div className="bg-stone-900 h-full w-60 text-stone-60">
+          <div>
+            <span>Species</span>
+            <div>
+              {speciesTypes.map((speciesName) => {
+                return (
+                  <button
+                    className="h-6 px-2 m-1 text-sm text-indigo-100 transition-colors duration-150 bg-indigo-700  focus:shadow-outline hover:bg-indigo-800"
+                    id="speciesButton"
+                  >
+                    {speciesName}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <span>Acoustic Tag Code</span>
+            <div className="0 flex flex-col items-center justify-start">
+              {fishCodes.map((fishCode) => {
+                return (
+                  <button
+                    className="h-6 px-2 m-1 text-sm text-indigo-100 transition-colors duration-150 bg-indigo-700  focus:shadow-outline hover:bg-indigo-800"
+                    id="fishCodeButton"
+                    onClick={() => setInput(fishCode)}
+                  >
+                    {fishCode}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="">
+          <input
+            type="text"
+            onChange={(e) => setInput(e.target.value)}
+            value={input}
+          ></input>
+          <div>count: {count}</div>
+          <div>number of fish with acoustic tags: {tagCount}</div>
+          <div>
+            fish released: {fishCount} fish collected: {collectedFishCount}
+          </div>
+          <div>Types of fish: {speciesTypes}</div>
+          <MapContainer
+            center={[47.609946, -122.255315]}
+            zoom={16}
+            scrollWheelZoom={false}
+            style={{ minHeight: "50vh", minWidth: "60vw" }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[47.609946, -122.255315]}>
+              <Popup>
+                A pretty CSS3 popup. <br /> Easily customizable.
+              </Popup>
+            </Marker>
+            {pointMarkers}
+          </MapContainer>
+        </div>
       </div>
-      <div>Types of fish: {speciesTypes}</div>
-      <MapContainer
-        center={[47.609946, -122.255315]}
-        zoom={16}
-        scrollWheelZoom={false}
-        style={{ minHeight: "50vh", minWidth: "60vw" }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={[47.609946, -122.255315]}>
-          <Popup>
-            A pretty CSS3 popup. <br /> Easily customizable.
-          </Popup>
-        </Marker>
-        {pointMarkers}
-      </MapContainer>
     </>
   );
 }
