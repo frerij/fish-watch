@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, startTransition } from "react";
 import "./App.css";
 import fishMap from "./data/fishMap.json";
 import collection from "./data/data_collection.json";
@@ -78,7 +78,7 @@ function App() {
   return (
     <>
       <div className="flex flex-row gap-10">
-        <div className="bg-stone-900 h-full w-60 text-stone-60">
+        <div className="justify-start bg-stone-900 h-full w-60 text-stone-60">
           <div>
             <span>Species</span>
             <div>
@@ -87,6 +87,7 @@ function App() {
                   <button
                     className="h-6 px-2 m-1 text-sm text-indigo-100 transition-colors duration-150 bg-indigo-700  focus:shadow-outline hover:bg-indigo-800"
                     id="speciesButton"
+                    key={speciesName}
                   >
                     {speciesName}
                   </button>
@@ -102,7 +103,12 @@ function App() {
                   <button
                     className="h-6 px-2 m-1 text-sm text-indigo-100 transition-colors duration-150 bg-indigo-700  focus:shadow-outline hover:bg-indigo-800"
                     id="fishCodeButton"
-                    onClick={() => setInput(fishCode)}
+                    onClick={() => {
+                      startTransition(() => {
+                        setInput(fishCode);
+                      });
+                    }}
+                    key={fishCode}
                   >
                     {fishCode}
                   </button>
@@ -115,15 +121,18 @@ function App() {
         <div className="">
           <input
             type="text"
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              startTransition(() => {
+                setInput(e.target.value);
+              });
+            }}
             value={input}
           ></input>
-          <div>count: {count}</div>
+          <div>Number of Position Points: {count}</div>
           <div>number of fish with acoustic tags: {tagCount}</div>
           <div>
             fish released: {fishCount} fish collected: {collectedFishCount}
           </div>
-          <div>Types of fish: {speciesTypes}</div>
           <MapContainer
             center={[47.609946, -122.255315]}
             zoom={16}
@@ -135,9 +144,7 @@ function App() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <Marker position={[47.609946, -122.255315]}>
-              <Popup>
-                A pretty CSS3 popup. <br /> Easily customizable.
-              </Popup>
+              <Popup>Selected origin point</Popup>
             </Marker>
             {pointMarkers}
           </MapContainer>
