@@ -1,5 +1,5 @@
-import release from "./data/data_release.json";
-import collection from "./data/data_collection.json";
+import release from "../data/data_release.json";
+import collection from "../data/data_collection.json";
 import { PieChart, Pie, Tooltip, Cell } from "recharts";
 
 export function CollectedChart() {
