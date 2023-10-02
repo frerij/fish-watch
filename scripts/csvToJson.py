@@ -7,6 +7,19 @@ geod = Geodesic.WGS84
 metersPerUnit = 850/160
 center = [47.609946, -122.255315]
 
+fishTagToSpecies = {}
+with open("./data/PIT_CE_release.csv", encoding='utf-8') as csvf:
+	csvReader = csv.DictReader(csvf)
+
+	for row in csvReader:
+		shortTagCode = row["Acoustic Tag"].upper()
+		if shortTagCode != "":
+			fishTagToSpecies[shortTagCode] = row["Species Name"]
+
+with open("./data/fishTagToSpecies.json", 'w', encoding='utf-8') as jsonf:
+		jsonf.write(json.dumps(fishTagToSpecies, indent=4))
+
+
 # x -> longitude
 # y -> latitude
 
@@ -16,25 +29,24 @@ def offsetFromCenter(x, y):
 	g = geod.Direct(center[0], center[1], heading, distance * metersPerUnit)
 	return [g['lat2'],g['lon2']]
 
-
 # Function to convert a CSV to JSON
 # Takes the file paths as arguments
 def make_json(csvFilePath, jsonFilePath):
 	
 	# create a dictionary
 	data = {}
+	tagToSpecies = {}
 	
 	# Open a csv reader called DictReader
 	with open(csvFilePath, encoding='utf-8') as csvf:
 		csvReader = csv.DictReader(csvf)
-		
 		
 		for row in csvReader:
 			# removing outliers above selected mse
 			mse = float(row["MSE"])
 			if (mse > 200):
 				continue
-
+			
 			newPoint = offsetFromCenter(float(row["X"]), float(row["Y"]))
 			newEntry = {
 				"dateTime": row["Date_time"], 
@@ -48,12 +60,23 @@ def make_json(csvFilePath, jsonFilePath):
 			if (row["Tag_code"] in data):
 				data[row["Tag_code"]]["positions"].append(newEntry)
 			else:
-				data[row["Tag_code"]] = {"positions": [newEntry], "species": ""}
+				shortTagCode = row["Tag_code"][3:7]
+				species = "Unknown"
+				if shortTagCode in fishTagToSpecies:
+					species = fishTagToSpecies[shortTagCode]
+				data[row["Tag_code"]] = {"positions": [newEntry], "species": species}
+				if species in tagToSpecies:
+					tagToSpecies[species].append(row["Tag_code"])
+				else:
+					tagToSpecies[species] = [row["Tag_code"]]
 
 	# Open a json writer, and use the json.dumps()
 	# function to dump data
 	with open(jsonFilePath, 'w', encoding='utf-8') as jsonf:
 		jsonf.write(json.dumps(data, indent=4))
+
+	with open("../src/data/speciesToTag.json", 'w', encoding='utf-8') as jsonf:
+		jsonf.write(json.dumps(tagToSpecies, indent=4))
 		
 # Driver Code
 

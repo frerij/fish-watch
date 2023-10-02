@@ -6,11 +6,12 @@ import release from "./data/data_release.json";
 import {
   MapContainer,
   TileLayer,
-  useMap,
   Marker,
   Popup,
   CircleMarker,
 } from "react-leaflet";
+import { CollectedChart } from "./CollectedChart";
+import { Sidebar } from "./components/Sidebar";
 
 function App() {
   const [input, setInput] = useState("");
@@ -77,61 +78,21 @@ function App() {
 
   return (
     <>
-      <div className="flex flex-row gap-10">
-        <div className="justify-start bg-stone-900 h-full w-60 text-stone-60">
-          <div>
-            <span>Species</span>
-            <div>
-              {speciesTypes.map((speciesName) => {
-                return (
-                  <button
-                    className="h-6 px-2 m-1 text-sm text-indigo-100 transition-colors duration-150 bg-indigo-700  focus:shadow-outline hover:bg-indigo-800"
-                    id="speciesButton"
-                    key={speciesName}
-                  >
-                    {speciesName}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div>
-            <span>Acoustic Tag Code</span>
-            <div className="0 flex flex-col items-center justify-start">
-              {fishCodes.map((fishCode) => {
-                return (
-                  <button
-                    className="h-6 px-2 m-1 text-sm text-indigo-100 transition-colors duration-150 bg-indigo-700  focus:shadow-outline hover:bg-indigo-800"
-                    id="fishCodeButton"
-                    onClick={() => {
-                      startTransition(() => {
-                        setInput(fishCode);
-                      });
-                    }}
-                    key={fishCode}
-                  >
-                    {fishCode}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+      <div className="flex grow flex-row max-h-screen gap-10 min-h-screen">
+        <Sidebar setSelectedTag={setInput} selectedTag={input} />
 
-        <div className="">
-          <input
-            type="text"
-            onChange={(e) => {
-              startTransition(() => {
-                setInput(e.target.value);
-              });
-            }}
-            value={input}
-          ></input>
+        <div className="max-h-screen grow overflow-y-scroll">
+          <div>
+            {input} is a {fishMap?.[input]?.["species"]}
+          </div>
+
           <div>Number of Position Points: {count}</div>
           <div>number of fish with acoustic tags: {tagCount}</div>
           <div>
             fish released: {fishCount} fish collected: {collectedFishCount}
+          </div>
+          <div>
+            <CollectedChart />
           </div>
           <MapContainer
             center={[47.609946, -122.255315]}
