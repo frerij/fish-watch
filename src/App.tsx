@@ -107,34 +107,38 @@ function App() {
         <Sidebar setSelectedTag={handleChangeInput} selectedTag={input} />
 
         <div className="max-h-screen grow overflow-y-scroll">
-          <div className="py-8">
-            {isLoading && "LOADING"}
+          <div className="flex flex-row">
+            <div className="py-8">
+              {isLoading && "LOADING"}
 
-            <div>
-              {input} is a {fishMap?.[input]?.["species"]}
+              <div>
+                {input} is a {fishMap?.[input]?.["species"]}
+              </div>
+              <div>Number of Position Points: {count}</div>
+              <div>Number of Position Points Displayed: {countDisplayed}</div>
             </div>
-            <div>Number of Position Points: {count}</div>
-            <div>Number of Position Points Displayed: {countDisplayed}</div>
+            <div>
+              fish released: {fishCount} fish collected: {collectedFishCount}
+              <CollectedChart />
+            </div>
           </div>
-          <div>
-            fish released: {fishCount} fish collected: {collectedFishCount}
-            <CollectedChart />
+          <div className="max-w-lg mb-10">
+            <MapContainer
+              center={[48.88231415802141, -122.89835666919856]}
+              zoom={16}
+              scrollWheelZoom={false}
+              style={{ minHeight: "60vh", minWidth: "50vw" }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <Marker position={[48.88231415802141, -122.89835666919856]}>
+                <Popup>Selected origin point</Popup>
+              </Marker>
+              {pointMarkers}
+            </MapContainer>
           </div>
-          <MapContainer
-            center={[47.609946, -122.255315]}
-            zoom={16}
-            scrollWheelZoom={false}
-            style={{ minHeight: "50vh", minWidth: "60vw" }}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <Marker position={[47.609946, -122.255315]}>
-              <Popup>Selected origin point</Popup>
-            </Marker>
-            {pointMarkers}
-          </MapContainer>
         </div>
       </div>
     </>

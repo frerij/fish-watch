@@ -5,7 +5,7 @@ from geographiclib.geodesic import Geodesic
 
 geod = Geodesic.WGS84
 metersPerUnit = 850/160
-center = [47.609946, -122.255315]
+center = [48.88231415802141, -122.89835666919856]
 
 fishTagToSpecies = {}
 with open("./data/PIT_CE_release.csv", encoding='utf-8') as csvf:

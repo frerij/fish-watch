@@ -26,14 +26,15 @@ export function Sidebar({ setSelectedTag, selectedTag }: SidebarProps) {
                 selectedSpecies === s
                   ? "bg-indigo-700 text-white"
                   : "text-indigo-200 hover:text-white hover:bg-indigo-700"
-              } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold`}
+              } group flex gap-x-3 rounded-md p-2 text-md leading-6 font-bold`}
             >
               {s}
             </div>
           );
         })}
       </div>
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col pt-2">
+        <div className="font-semibold text-md">Acoustic Tag</div>
         {speciesToTag[selectedSpecies].map((s) => {
           return (
             <div
