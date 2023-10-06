@@ -7,6 +7,7 @@ geod = Geodesic.WGS84
 metersPerUnit = 850/160
 center = [48.88231415802141, -122.89835666919856]
 
+# access long code here
 fishTagToSpecies = {}
 with open("./data/PIT_CE_release.csv", encoding='utf-8') as csvf:
 	csvReader = csv.DictReader(csvf)
@@ -14,15 +15,31 @@ with open("./data/PIT_CE_release.csv", encoding='utf-8') as csvf:
 	for row in csvReader:
 		shortTagCode = row["Acoustic Tag"].upper()
 		if shortTagCode != "":
-			fishTagToSpecies[shortTagCode] = row["Species Name"]
+			pitTagCode = row["Tag Code"]
+			fishTagToSpecies[shortTagCode] = {"speciesName": row["Species Name"], "pitTagCode": pitTagCode}
 
 with open("./data/fishTagToSpecies.json", 'w', encoding='utf-8') as jsonf:
 		jsonf.write(json.dumps(fishTagToSpecies, indent=4))
 
+# long code & collected (from collection) to find short code in release
+# short code to position
+# {{3DD.003BC95FC6: true}}
+
+fishTagToCollected = {}
+with open("./data/PIT_CE_collection.csv", encoding='utf-8') as csvf:
+	csvReader = csv.DictReader(csvf)
+
+	for row in csvReader:
+		collected = (row["Site Name"].strip(" ") == "Final Collection Point")
+		if (collected == True):
+			pitTagCode = row["Tag Code"]
+			fishTagToCollected[pitTagCode] = True
+with open("./data/fishTagToCollected.json", 'w', encoding='utf-8') as jsonf:
+	jsonf.write(json.dumps(fishTagToCollected, indent=4))
+
 
 # x -> longitude
 # y -> latitude
-
 def offsetFromCenter(x, y):
 	heading = 90 - math.atan2(y,x) * 180 / math.pi
 	distance = math.sqrt(x**2 + y**2)
@@ -62,9 +79,14 @@ def make_json(csvFilePath, jsonFilePath):
 			else:
 				shortTagCode = row["Tag_code"][3:7]
 				species = "Unknown"
+				collected = False
+				pitTagCode = ""
 				if shortTagCode in fishTagToSpecies:
-					species = fishTagToSpecies[shortTagCode]
-				data[row["Tag_code"]] = {"positions": [newEntry], "species": species}
+					species = fishTagToSpecies[shortTagCode]["speciesName"]
+					pitTagCode = fishTagToSpecies[shortTagCode]["pitTagCode"]
+				if pitTagCode in fishTagToCollected:
+					collected = True
+				data[row["Tag_code"]] = {"positions": [newEntry], "species": species, "collected": collected, "pitTagCode": pitTagCode}
 				if species in tagToSpecies:
 					tagToSpecies[species].append(row["Tag_code"])
 				else:

@@ -8,6 +8,7 @@ type SidebarProps = {
 export function Sidebar({ setSelectedTag, selectedTag }: SidebarProps) {
   const species = Object.keys(speciesToTag);
   const [selectedSpecies, setSelectedSpecies] = useState(species[0]);
+  const [tagInput, setTagInput] = useState("");
   return (
     <div className="flex flex-row gap-y-5 gap-x-8 py-4 overflow-y-auto bg-indigo-600 px-6">
       {/* <div className="flex h-16 shrink-0 items-center">
@@ -21,11 +22,12 @@ export function Sidebar({ setSelectedTag, selectedTag }: SidebarProps) {
         {species.map((s) => {
           return (
             <div
+              key={s}
               onClick={() => setSelectedSpecies(s)}
               className={`${
                 selectedSpecies === s
                   ? "bg-indigo-700 text-white"
-                  : "text-indigo-200 hover:text-white hover:bg-indigo-700"
+                  : "text-indigo-200 hover:text-white hover:bg-indigo-200"
               } group flex gap-x-3 rounded-md p-2 text-md leading-6 font-bold`}
             >
               {s}
@@ -35,9 +37,11 @@ export function Sidebar({ setSelectedTag, selectedTag }: SidebarProps) {
       </div>
       <div className="flex flex-1 flex-col pt-2">
         <div className="font-semibold text-md">Acoustic Tag</div>
+        <input onChange={(e) => setTagInput(e.target.value)}></input>
         {speciesToTag[selectedSpecies].map((s) => {
           return (
             <div
+              key={s}
               onClick={() => setSelectedTag(s)}
               className={`${
                 selectedTag === s

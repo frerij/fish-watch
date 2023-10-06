@@ -39,7 +39,7 @@ export function CollectedChart() {
 
   return (
     <>
-      <PieChart width={400} height={400}>
+      <PieChart width={400} height={400} className="">
         <Pie
           dataKey="value"
           isAnimationActive={false}
@@ -49,6 +49,7 @@ export function CollectedChart() {
           outerRadius={80}
           fill="#8884d8"
           label
+          className="border border-rose-200"
         />
         {data.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
