@@ -12,47 +12,75 @@ import {
 } from "react-leaflet";
 import { CollectedChart } from "./components/CollectedChart";
 import { Sidebar } from "./components/Sidebar";
+import speciesToTag from "./data/speciesToTag.json";
+import { FullscreenSpinner } from "./components/FullscreenSpinner";
+
+// chose blue and yellow for colorblind accessibility
+const collectedToColor = {
+  true: "blue",
+  false: "yellow",
+};
 
 function App() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState("All");
+  const [selectedSpecies, setSelectedSpecies] = useState("All");
   const collectedFishCount = collection.length;
 
   const [isLoading, startTransition] = useTransition();
 
-  const { count, countDisplayed, points } = useMemo(() => {
-    if (!fishMap[input] || !fishMap[input]["positions"])
-      return { count: 0, points: [] };
+  const selectedFishTags = useMemo(() => {
+    let fishTags = [input];
+    const showAllOfSpecies = input === "All";
+    if (showAllOfSpecies) {
+      if (selectedSpecies === "All") {
+        fishTags = Object.keys(fishMap);
+      } else {
+        fishTags = speciesToTag[selectedSpecies];
+      }
+    }
+    return fishTags;
+  }, [input, selectedSpecies]);
 
-    const count = fishMap[input]["positions"].length;
+  const { count, countDisplayed, points } = useMemo(() => {
+    const showAllOfSpecies = input === "All";
+    let count = 0;
+    if (showAllOfSpecies) {
+      selectedFishTags.forEach(
+        (fishTag) => (count += fishMap[fishTag]["positions"].length)
+      );
+    } else {
+      count = fishMap[input]["positions"].length;
+    }
+
     // setting max number of points to 10000 for performance
     // sampling using random value
-    const sampleValue = count > 10000 ? 10000 / count : 1;
+    const maxPointsToShow = showAllOfSpecies ? 20000 : 10000;
+    const sampleValue = count > maxPointsToShow ? maxPointsToShow / count : 1;
     const sampledPoints = [];
-    fishMap[input]["positions"].forEach((point) => {
-      if (Math.random() <= sampleValue) {
-        sampledPoints.push(point);
-      }
+    selectedFishTags.forEach((tag) => {
+      fishMap[tag]["positions"].forEach((point) => {
+        if (Math.random() <= sampleValue) {
+          const fishCollected = fishMap[tag]["collected"];
+          sampledPoints.push({ ...point, collected: fishCollected });
+        }
+      });
     });
     return {
-      count: fishMap[input]["positions"].length,
+      count: count,
       countDisplayed: sampledPoints.length,
       points: sampledPoints,
     };
-  }, [input]);
-
-  const fishCodes = Object.keys(fishMap);
-  const speciesColor = {
-    Coho: "purple",
-    Chinook: "green",
-    Steelhead: "blue",
-    unknown: "red",
-  };
+  }, [input, selectedFishTags]);
 
   const pointMarkers = useMemo(() => {
     return points.map((point) => {
       return (
         <CircleMarker
-          pathOptions={{ fill: true, fillColor: "red", stroke: false }}
+          pathOptions={{
+            fill: true,
+            fillColor: collectedToColor[point.collected],
+            stroke: false,
+          }}
           radius={3}
           center={[point.lat, point.lon]}
           key={`${point.lat}${point.lon}${point.mse}`}
@@ -62,17 +90,6 @@ function App() {
       );
     });
   }, [points]);
-
-  const speciesTypes = useMemo(() => {
-    const species: Array<string> = [];
-    release.forEach((row) => {
-      const name = row["Species Name"];
-      if (!species.includes(name)) {
-        species.push(name);
-      }
-    });
-    return species;
-  }, []);
 
   const { tagCount, fishCount } = useMemo(() => {
     const tagCodes: Record<string, boolean> = {};
@@ -101,10 +118,23 @@ function App() {
     });
   };
 
+  const handleChangeSelectedSpecies = (i: string) => {
+    startTransition(() => {
+      setSelectedSpecies(i);
+      setInput("All");
+    });
+  };
+
   return (
     <>
+      {isLoading && <FullscreenSpinner />}
       <div className="flex grow flex-row max-h-screen gap-10 min-h-screen">
-        <Sidebar setSelectedTag={handleChangeInput} selectedTag={input} />
+        <Sidebar
+          setSelectedTag={handleChangeInput}
+          selectedTag={input}
+          setSelectedSpecies={handleChangeSelectedSpecies}
+          selectedSpecies={selectedSpecies}
+        />
 
         <div className="max-h-screen grow overflow-y-scroll">
           <div className="flex flex-row gap-6">
@@ -115,14 +145,13 @@ function App() {
           </div>
           <div className="flex flex-row pb-10">
             <div className="py-8 pr-4">
-              {isLoading && "LOADING"}
               <div>
                 {input
                   ? `${input} is a ${fishMap?.[input]?.species}`
                   : "Select a fish"}
               </div>
               <div>
-                Fish Collected: {fishMap[input].collected ? "Yes" : "No"}
+                Fish Collected: {fishMap?.[input]?.collected ? "Yes" : "No"}
               </div>
               <div>Number of Position Points: {count}</div>
               <div>Number of Position Points Displayed: {countDisplayed}</div>
