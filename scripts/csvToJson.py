@@ -61,7 +61,7 @@ def make_json(csvFilePath, jsonFilePath):
 		for row in csvReader:
 			# removing outliers above selected mse
 			mse = float(row["MSE"])
-			if (mse > 200):
+			if (mse > 4):
 				continue
 			
 			newPoint = offsetFromCenter(float(row["X"]), float(row["Y"]))

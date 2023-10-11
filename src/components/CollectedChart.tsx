@@ -1,11 +1,35 @@
 import release from "../data/data_release.json";
 import collection from "../data/data_collection.json";
 import { PieChart, Pie, Tooltip, Cell } from "recharts";
+import { useMemo } from "react";
 
 export function CollectedChart() {
+  const collectedFishCount = collection.length;
+
+  const { tagCount, fishCount } = useMemo(() => {
+    const tagCodes: Record<string, boolean> = {};
+    const fishTags: Record<string, boolean> = {};
+    let tagCount = 0;
+    let fishCount = 0;
+
+    release.forEach((row) => {
+      const fishTag = row["Tag Code"];
+      const acousticTagShort = row["Acoustic Tag"];
+      if (acousticTagShort !== "" && !tagCodes[acousticTagShort]) {
+        tagCodes[acousticTagShort] = true;
+        tagCount++;
+      }
+      if (!fishTags[fishTag]) {
+        fishTags[fishTag] = true;
+        fishCount++;
+      }
+    });
+    return { tagCount, fishCount };
+  }, []);
+
   const data = [
-    { name: "Collected Fish", value: 356 },
-    { name: "Not Collected Fish", value: 5000 },
+    { name: "Collected Fish", value: collectedFishCount },
+    { name: "Not Collected Fish", value: fishCount - collectedFishCount },
   ];
 
   const colors = ["#0088FE", "#FF8042"];

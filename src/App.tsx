@@ -1,14 +1,13 @@
 import { useMemo, useState, useTransition } from "react";
 import "./App.css";
 import fishMap from "./data/fishMap.json";
-import collection from "./data/data_collection.json";
-import release from "./data/data_release.json";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
   CircleMarker,
+  Polyline,
 } from "react-leaflet";
 import { CollectedChart } from "./components/CollectedChart";
 import { Sidebar } from "./components/Sidebar";
@@ -21,10 +20,13 @@ const collectedToColor = {
   false: "yellow",
 };
 
+const numberOfPointsOnTrail = 20;
+
 function App() {
   const [input, setInput] = useState("All");
   const [selectedSpecies, setSelectedSpecies] = useState("All");
-  const collectedFishCount = collection.length;
+  const [time, setTime] = useState("0");
+  const [trailModeActive, setTrailModeActive] = useState(true);
 
   const [isLoading, startTransition] = useTransition();
 
@@ -41,8 +43,21 @@ function App() {
     return fishTags;
   }, [input, selectedSpecies]);
 
+  const maxTimeRange = useMemo(() => {
+    let max = 0;
+    selectedFishTags.forEach((tag) => {
+      if (fishMap[tag]["positions"].length > max) {
+        max = fishMap[tag]["positions"].length;
+      }
+    });
+    return max;
+  }, [selectedFishTags]);
+
   const { count, countDisplayed, points } = useMemo(() => {
     const showAllOfSpecies = input === "All";
+
+    if (trailModeActive) return { points: [], countDisplayed: 0, count: 0 };
+
     let count = 0;
     if (showAllOfSpecies) {
       selectedFishTags.forEach(
@@ -72,6 +87,42 @@ function App() {
     };
   }, [input, selectedFishTags]);
 
+  const { trails } = useMemo(() => {
+    if (!trailModeActive) return { trails: [] };
+
+    const trails = [];
+    selectedFishTags.forEach((tag) => {
+      const isFishActive = time < fishMap[tag]["positions"].length;
+      let latestIndex: number = isFishActive
+        ? time
+        : fishMap[tag]["positions"].length - 1;
+      let trail = [];
+      for (let i = 0; i < numberOfPointsOnTrail && latestIndex - i >= 0; i++) {
+        trail.push(fishMap[tag]["positions"][latestIndex - i]);
+      }
+      trails.push({ trail, isFishActive, collected: fishMap[tag].collected });
+    });
+
+    return {
+      trails,
+    };
+  }, [selectedFishTags, time, trailModeActive]);
+
+  const trailPolylines = useMemo(() => {
+    return trails.map((trail) => {
+      return (
+        <Polyline
+          pathOptions={{
+            color: collectedToColor[trail.collected],
+            opacity: trail.isFishActive ? 1 : 0.2,
+            fill: false,
+          }}
+          positions={trail.trail.map((point) => [point.lat, point.lon])}
+        />
+      );
+    });
+  }, [trails]);
+
   const pointMarkers = useMemo(() => {
     return points.map((point) => {
       return (
@@ -90,27 +141,6 @@ function App() {
       );
     });
   }, [points]);
-
-  const { tagCount, fishCount } = useMemo(() => {
-    const tagCodes: Record<string, boolean> = {};
-    const fishTags: Record<string, boolean> = {};
-    let tagCount = 0;
-    let fishCount = 0;
-
-    release.forEach((row) => {
-      const fishTag = row["Tag Code"];
-      const acousticTagShort = row["Acoustic Tag"];
-      if (acousticTagShort !== "" && !tagCodes[acousticTagShort]) {
-        tagCodes[acousticTagShort] = true;
-        tagCount++;
-      }
-      if (!fishTags[fishTag]) {
-        fishTags[fishTag] = true;
-        fishCount++;
-      }
-    });
-    return { tagCount, fishCount };
-  }, []);
 
   const handleChangeInput = (i: string) => {
     startTransition(() => {
@@ -137,12 +167,6 @@ function App() {
         />
 
         <div className="max-h-screen grow overflow-y-scroll">
-          <div className="flex flex-row gap-6">
-            <div>
-              fish released: {fishCount} fish collected: {collectedFishCount}
-              <CollectedChart />
-            </div>
-          </div>
           <div className="flex flex-row pb-10">
             <div className="py-8 pr-4">
               <div>
@@ -171,7 +195,35 @@ function App() {
                   <Popup>Selected origin point</Popup>
                 </Marker>
                 {pointMarkers}
+                {trailPolylines}
               </MapContainer>
+            </div>
+          </div>
+          <div className="flex flex-row gap-6">
+            <button onClick={() => setTrailModeActive(!trailModeActive)}>
+              {trailModeActive ? "Disable trail mode" : "Enable trail mode"}
+            </button>
+            <div>
+              <label
+                htmlFor="timeRange"
+                className="mb-2 inline-block text-neutral-700 dark:text-neutral-200"
+              >
+                Time range: {time}
+              </label>
+              <input
+                type="range"
+                className="transparent h-1.5 w-full cursor-pointer appearance-none rounded-lg border-transparent bg-neutral-200"
+                id="timeRange"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                min={0}
+                max={maxTimeRange}
+              />
+            </div>
+          </div>
+          <div className="flex flex-row gap-6">
+            <div>
+              <CollectedChart />
             </div>
           </div>
         </div>
