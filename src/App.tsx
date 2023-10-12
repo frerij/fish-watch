@@ -14,7 +14,9 @@ import { Sidebar } from "./components/Sidebar";
 import speciesToTag from "./data/speciesToTag.json";
 import { FullscreenSpinner } from "./components/FullscreenSpinner";
 
-// chose blue and yellow for colorblind accessibility
+// blue and yellow for colorblind accessibility
+// limited to leaflet color options - add hex to tailwind config
+// to use elsewhere
 const collectedToColor = {
   true: "blue",
   false: "yellow",
@@ -73,7 +75,7 @@ function App() {
     const sampleValue = count > maxPointsToShow ? maxPointsToShow / count : 1;
     const sampledPoints = [];
     selectedFishTags.forEach((tag) => {
-      fishMap[tag]["positions"].forEach((point) => {
+      fishMap[tag]["positions"].forEach((point: []) => {
         if (Math.random() <= sampleValue) {
           const fishCollected = fishMap[tag]["collected"];
           sampledPoints.push({ ...point, collected: fishCollected });
@@ -215,7 +217,7 @@ function App() {
           <div className="flex flex-col gap-8">
             <div>
               <MapContainer
-                center={[48.88231415802141, -122.89835666919856]}
+                center={[48.884804, -122.896847]}
                 zoom={16}
                 scrollWheelZoom={false}
                 style={{ minHeight: "60vh", minWidth: "50vw" }}
@@ -238,7 +240,7 @@ function App() {
                     trailModeActive
                       ? "bg-red hover:bg-red/70"
                       : "bg-green hover:bg-green/70"
-                  } rounded-lg text-sm py-1 px-4 h-10 text-center self-center font-bold cursor-pointer text-white`}
+                  } rounded-lg text-sm py-1 px-4 h-10 w-40 text-center self-center font-bold cursor-pointer text-white`}
                   onClick={() => setTrailModeActive(!trailModeActive)}
                 >
                   {trailModeActive ? "Disable trail mode" : "Enable trail mode"}
@@ -247,12 +249,28 @@ function App() {
                   disabled={!trailModeActive}
                   onClick={() => setIsPlaying(!isPlaying)}
                   className={`${
-                    trailModeActive
-                      ? "bg-green hover:bg-red/70"
-                      : "bg-green opacity-50 cursor-not-allowed"
-                  } rounded-md px-2 text-sm font-bold cursor-pointer text-white h-10`}
+                    isPlaying && trailModeActive === true
+                      ? "bg-red hover:bg-red/70"
+                      : trailModeActive
+                      ? "bg-green hover:bg-green/70"
+                      : "bg-green cursor-not-allowed opacity-50"
+                  } rounded-md px-2 text-xs font-bold cursor-pointer text-white h-10 w-12`}
                 >
-                  Start
+                  {isPlaying ? "Stop" : "Start"}
+                </button>
+                <button
+                  disabled={!trailModeActive}
+                  onClick={() => {
+                    setIsPlaying(false);
+                    setTime("0");
+                  }}
+                  className={`${
+                    trailModeActive
+                      ? "bg-red hover:bg-red/70"
+                      : "bg-red cursor-not-allowed opacity-50"
+                  } rounded-md px-2 text-xs font-bold cursor-pointer text-white h-10`}
+                >
+                  Reset
                 </button>
                 <div
                   className={`${
