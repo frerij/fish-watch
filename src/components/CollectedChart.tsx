@@ -63,7 +63,7 @@ export function CollectedChart() {
 
   return (
     <>
-      <PieChart width={400} height={400} className="">
+      <PieChart width={315} height={315} className="max-w-10">
         <Pie
           dataKey="value"
           isAnimationActive={false}

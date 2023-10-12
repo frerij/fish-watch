@@ -28,7 +28,7 @@ export function Sidebar({
     return ["All", ...speciesToTag[selectedSpecies]];
   }, [selectedSpecies]);
   return (
-    <div className="flex flex-row gap-y-5 gap-x-8 py-4 overflow-y-auto bg-indigo-600 px-6">
+    <div className="flex flex-row gap-y-5 gap-x-8 py-4 overflow-y-auto bg-darkerGrey px-6">
       {/* <div className="flex h-16 shrink-0 items-center">
         <img
           className="h-8 w-auto"
@@ -37,7 +37,7 @@ export function Sidebar({
         />
       </div> */}
       <div className={`flex flex-1 flex-col gap-1`}>
-        <div className="font-semibold text-md pb-2">Species</div>
+        <div className="font-semibold text-md pb-2 text-white">Species</div>
         {species.map((s) => {
           return (
             <div
@@ -45,8 +45,8 @@ export function Sidebar({
               onClick={() => setSelectedSpecies(s)}
               className={`${
                 selectedSpecies === s
-                  ? "bg-indigo-700 text-white"
-                  : "text-indigo-200 hover:text-white hover:bg-indigo-200"
+                  ? "bg-darkGrey text-white"
+                  : "text-lightGrey hover:text-white hover:bg-darkGrey"
               } group flex gap-x-3 rounded-md p-2 text-md leading-6 font-bold cursor-pointer`}
             >
               {s}
@@ -55,8 +55,9 @@ export function Sidebar({
         })}
       </div>
       <div className="flex flex-1 flex-col gap-1">
-        <div className="font-semibold text-md pb-2">Acoustic Tag</div>
-        {/* <input onChange={(e) => setTagInput(e.target.value)}></input> */}
+        <div className="font-semibold text-md pb-2 text-white">
+          Acoustic Tag
+        </div>
         {fishTagsToRender.map((s) => {
           return (
             <div
@@ -64,8 +65,8 @@ export function Sidebar({
               onClick={() => setSelectedTag(s)}
               className={`${
                 selectedTag === s
-                  ? "bg-indigo-700 text-white"
-                  : "text-indigo-200 hover:text-white hover:bg-indigo-700"
+                  ? "bg-darkGrey text-white"
+                  : "text-lightGrey hover:text-white hover:bg-darkGrey"
               } group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer`}
             >
               {s}

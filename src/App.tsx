@@ -20,6 +20,7 @@ const collectedToColor = {
   false: "yellow",
 };
 
+// select number of points path trail shows
 const numberOfPointsOnTrail = 20;
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
   const [selectedSpecies, setSelectedSpecies] = useState("All");
   const [time, setTime] = useState("0");
   const [trailModeActive, setTrailModeActive] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const [isLoading, startTransition] = useTransition();
 
@@ -55,8 +57,6 @@ function App() {
 
   const { count, countDisplayed, points } = useMemo(() => {
     const showAllOfSpecies = input === "All";
-
-    if (trailModeActive) return { points: [], countDisplayed: 0, count: 0 };
 
     let count = 0;
     if (showAllOfSpecies) {
@@ -166,13 +166,15 @@ function App() {
           selectedSpecies={selectedSpecies}
         />
 
-        <div className="max-h-screen grow overflow-y-scroll">
-          <div className="flex flex-row pb-10">
-            <div className="py-8 pr-4">
+        <div className="max-h-screen grow overflow-y-scroll pt-4 flex flex-row gap-8">
+          <div className="flex flex-col pb-10 gap-8">
+            <div className="p-4 max-w-10">
+              <div>Tag Code: {input}</div>
               <div>
-                {input
-                  ? `${input} is a ${fishMap?.[input]?.species}`
-                  : "Select a fish"}
+                Species:
+                {fishMap?.[input]?.species
+                  ? ` ${fishMap?.[input]?.species}`
+                  : ` ${selectedSpecies}`}
               </div>
               <div>
                 Fish Collected: {fishMap?.[input]?.collected ? "Yes" : "No"}
@@ -180,7 +182,38 @@ function App() {
               <div>Number of Position Points: {count}</div>
               <div>Number of Position Points Displayed: {countDisplayed}</div>
             </div>
-            <div className="max-w-lg ">
+            <div className="p-4 max-w-10">
+              <div>Legend</div>
+              <div className="flex flex-row">
+                <p>Position point:</p>
+                <button
+                  disabled={true}
+                  className="bg-white w-4 h-4 rounded-full self-center ml-2"
+                ></button>
+              </div>
+              <div className="flex flex-row">
+                <p>Collected fish: </p>
+                <button
+                  disabled={true}
+                  className={`bg-${collectedToColor.true} w-8 h-4 self-center ml-2`}
+                ></button>
+              </div>
+              <div className="flex flex-row">
+                <p>Uncollected fish: </p>
+                <button
+                  disabled={true}
+                  className={`bg-${collectedToColor.false} w-8 h-4 self-center ml-2`}
+                ></button>
+              </div>
+            </div>
+            <div className="gap-6">
+              <div>
+                <CollectedChart />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-8">
+            <div>
               <MapContainer
                 center={[48.88231415802141, -122.89835666919856]}
                 zoom={16}
@@ -198,32 +231,57 @@ function App() {
                 {trailPolylines}
               </MapContainer>
             </div>
-          </div>
-          <div className="flex flex-row gap-6">
-            <button onClick={() => setTrailModeActive(!trailModeActive)}>
-              {trailModeActive ? "Disable trail mode" : "Enable trail mode"}
-            </button>
             <div>
-              <label
-                htmlFor="timeRange"
-                className="mb-2 inline-block text-neutral-700 dark:text-neutral-200"
-              >
-                Time range: {time}
-              </label>
-              <input
-                type="range"
-                className="transparent h-1.5 w-full cursor-pointer appearance-none rounded-lg border-transparent bg-neutral-200"
-                id="timeRange"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                min={0}
-                max={maxTimeRange}
-              />
+              <div className="flex flex-row gap-6">
+                <button
+                  className={`${
+                    trailModeActive
+                      ? "bg-red hover:bg-red/70"
+                      : "bg-green hover:bg-green/70"
+                  } rounded-lg text-sm py-1 px-4 h-10 text-center self-center font-bold cursor-pointer text-white`}
+                  onClick={() => setTrailModeActive(!trailModeActive)}
+                >
+                  {trailModeActive ? "Disable trail mode" : "Enable trail mode"}
+                </button>
+                <button
+                  disabled={!trailModeActive}
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className={`${
+                    trailModeActive
+                      ? "bg-green hover:bg-red/70"
+                      : "bg-green opacity-50 cursor-not-allowed"
+                  } rounded-md px-2 text-sm font-bold cursor-pointer text-white h-10`}
+                >
+                  Start
+                </button>
+                <div
+                  className={`${
+                    trailModeActive ? "" : "opacity-50"
+                  } flex flex-col grow`}
+                >
+                  <label
+                    htmlFor="timeRange"
+                    className="mb-2 inline-block text-neutral-700 dark:text-neutral-200"
+                  >
+                    Time range: {time}
+                  </label>
+                  <input
+                    disabled={!trailModeActive}
+                    type="range"
+                    className={`${
+                      trailModeActive ? "cursor-pointer" : "cursor-not-allowed"
+                    } transparent h-1.5 grow appearance-none rounded-lg border-transparent bg-white`}
+                    id="timeRange"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    min={0}
+                    max={maxTimeRange}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-row gap-6">
-            <div>
-              <CollectedChart />
+            <div className="border-4 border-white rounded-md h-32">
+              <h2>Depth graph placeholder</h2>
             </div>
           </div>
         </div>
