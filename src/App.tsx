@@ -8,6 +8,7 @@ import {
   Popup,
   CircleMarker,
   Polyline,
+  ScaleControl,
 } from "react-leaflet";
 import { CollectedChart } from "./components/CollectedChart";
 import { Sidebar } from "./components/Sidebar";
@@ -23,16 +24,16 @@ const collectedToColor = {
 };
 
 // select number of points path trail shows
-const numberOfPointsOnTrail = 20;
+const numberOfPointsOnTrail = 15;
 
 // interval used for timer
-const playSpeed = 75;
+const playSpeed = 90;
 
 function App() {
   const [input, setInput] = useState("All");
   const [selectedSpecies, setSelectedSpecies] = useState("All");
   const [time, setTime] = useState(0);
-  const [trailModeActive, setTrailModeActive] = useState(true);
+  const [trailModeActive, setTrailModeActive] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const [isLoading, startTransition] = useTransition();
@@ -193,49 +194,55 @@ function App() {
           selectedSpecies={selectedSpecies}
         />
 
-        <div className="max-h-screen grow overflow-y-scroll pt-4 flex flex-row gap-8">
+        <div className="max-h-screen grow overflow-y-scroll pt-10 flex flex-row gap-8">
           <div className="flex flex-col pb-10 gap-8">
             <div className="p-4 max-w-10">
-              <div>Tag Code: {input}</div>
-              <div>
-                Species:
-                {fishMap?.[input]?.species
-                  ? ` ${fishMap?.[input]?.species}`
-                  : ` ${selectedSpecies}`}
+              <h2 className="font-bold">Details</h2>
+              <hr></hr>
+              <div className="pl-2">
+                <div>Tag Code: {input}</div>
+                <div>
+                  Species:
+                  {fishMap?.[input]?.species
+                    ? ` ${fishMap?.[input]?.species}`
+                    : ` ${selectedSpecies}`}
+                </div>
+                <div>
+                  Fish Collected: {fishMap?.[input]?.collected ? "Yes" : "No"}
+                </div>
+                <div>Number of Position Points: {count}</div>
+                <div>Number of Position Points Displayed: {countDisplayed}</div>
               </div>
-              <div>
-                Fish Collected: {fishMap?.[input]?.collected ? "Yes" : "No"}
-              </div>
-              <div>Number of Position Points: {count}</div>
-              <div>Number of Position Points Displayed: {countDisplayed}</div>
+            </div>
+
+            <div className="self-center">
+              <CollectedChart />
             </div>
             <div className="p-4 max-w-10">
-              <div>Legend</div>
-              <div className="flex flex-row">
-                <p>Position point:</p>
-                <button
-                  disabled={true}
-                  className="bg-white w-4 h-4 rounded-full self-center ml-2"
-                ></button>
-              </div>
-              <div className="flex flex-row">
-                <p>Collected fish: </p>
-                <button
-                  disabled={true}
-                  className={`bg-${collectedToColor.true} w-8 h-4 self-center ml-2`}
-                ></button>
-              </div>
-              <div className="flex flex-row">
-                <p>Uncollected fish: </p>
-                <button
-                  disabled={true}
-                  className={`bg-${collectedToColor.false} w-8 h-4 self-center ml-2`}
-                ></button>
-              </div>
-            </div>
-            <div className="gap-6">
-              <div>
-                <CollectedChart />
+              <h2 className="font-bold">Legend</h2>
+              <hr></hr>
+              <div className="pl-2">
+                <div className="flex flex-row">
+                  <p>Position point:</p>
+                  <button
+                    disabled={true}
+                    className="bg-white w-4 h-4 rounded-full self-center ml-2"
+                  ></button>
+                </div>
+                <div className="flex flex-row">
+                  <p>Collected fish: </p>
+                  <button
+                    disabled={true}
+                    className={`bg-blue w-8 h-4 self-center ml-2`}
+                  ></button>
+                </div>
+                <div className="flex flex-row">
+                  <p>Uncollected fish: </p>
+                  <button
+                    disabled={true}
+                    className={`bg-yellow w-8 h-4 self-center ml-2`}
+                  ></button>
+                </div>
               </div>
             </div>
           </div>
@@ -247,11 +254,11 @@ function App() {
                 scrollWheelZoom={false}
                 style={{ minHeight: "60vh", minWidth: "50vw" }}
               >
+                <ScaleControl position="bottomright" />
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-
                 <Marker position={[48.88231415802141, -122.89835666919856]}>
                   <Popup>Selected origin point</Popup>
                   {pointMarkers}
@@ -267,7 +274,12 @@ function App() {
                       ? "bg-red hover:bg-red/70"
                       : "bg-green hover:bg-green/70"
                   } rounded-lg text-sm py-1 px-4 h-10 w-40 text-center self-center font-bold cursor-pointer text-white`}
-                  onClick={() => setTrailModeActive(!trailModeActive)}
+                  onClick={() => {
+                    if (trailModeActive) {
+                      setIsPlaying(false);
+                    }
+                    setTrailModeActive(!trailModeActive);
+                  }}
                 >
                   {trailModeActive ? "Disable trail mode" : "Enable trail mode"}
                 </button>

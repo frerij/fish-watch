@@ -2,9 +2,9 @@ export function FullscreenSpinner() {
   return (
     <div className="absolute bg-white bg-opacity-60 z-[1000] h-full w-full flex items-center justify-center">
       <div className="flex items-center">
-        <span className="text-3xl mr-4">Loading</span>
+        <span className="text-3xl mr-4 text-darkerGrey">Loading</span>
         <svg
-          className="animate-spin h-8 w-8 text-gray-800"
+          className="animate-spin h-8 w-8 text-darkerGrey"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"

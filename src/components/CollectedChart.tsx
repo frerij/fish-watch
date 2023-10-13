@@ -46,10 +46,12 @@ export function CollectedChart() {
 
   return (
     <>
-      <PieChart width={315} height={315} className="max-w-10">
+      <p>Proportion of fish collected:</p>
+      <hr></hr>
+      <PieChart width={275} height={200} className="max-w-10">
         <Pie
           dataKey="value"
-          isAnimationActive={false}
+          isAnimationActive={true}
           data={data}
           cx="50%"
           cy="50%"
