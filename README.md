@@ -2,6 +2,8 @@
 
 This is **FishWatch**, an interactive data visualization to explore fish behavior in a waterbody. Movement patterns are represented as a heatmap view of position points with optional animated pathing. You can view movement patterns of all tagged fish, all fish in one species, or one specific fish and fish are color coded based on whether they reached the Final Collection Point or not.
 
+View it here: [frerichs-fishwatch.netlify.app](https://frerichs-fishwatch.netlify.app/)
+
 ## To run this program
 
 1. `pnpm i`
