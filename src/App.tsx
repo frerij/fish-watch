@@ -15,8 +15,8 @@ import { Sidebar } from "./components/Sidebar";
 import speciesToTag from "./data/speciesToTag.json";
 import { FullscreenSpinner } from "./components/FullscreenSpinner";
 import { DepthChart } from "./components/DepthChart";
-
 import { Species } from "./types";
+import originPNG from "./assets/originMarker.png";
 
 // blue and yellow for colorblind accessibility
 // limited to leaflet color options - add hex to tailwind config
@@ -226,6 +226,10 @@ function App() {
               <h2 className="font-bold">Legend</h2>
               <hr></hr>
               <div className="pl-2">
+                <div className="flex flex-row pt-1">
+                  <p>Origin:</p>
+                  <img src={originPNG} className="h-6 w-4 ml-2"></img>
+                </div>
                 <div className="flex flex-row">
                   <p>Position point:</p>
                   <button
@@ -294,11 +298,11 @@ function App() {
                   }}
                   className={`${
                     isPlaying && trailModeActive === true
-                      ? "bg-red hover:bg-red/70"
+                      ? "bg-red hover:bg-red/70 cursor-pointer"
                       : trailModeActive
-                      ? "bg-green hover:bg-green/70"
+                      ? "bg-green hover:bg-green/70 cursor-pointer"
                       : "bg-green cursor-not-allowed opacity-50"
-                  } rounded-md px-2 text-xs font-bold cursor-pointer text-white h-10 w-12`}
+                  } rounded-md px-2 text-xs font-bold text-white h-10 w-12`}
                 >
                   {isPlaying ? "Stop" : "Start"}
                 </button>
@@ -310,9 +314,9 @@ function App() {
                   }}
                   className={`${
                     trailModeActive
-                      ? "bg-red hover:bg-red/70"
+                      ? "bg-red hover:bg-red/70 cursor-pointer"
                       : "bg-red cursor-not-allowed opacity-50"
-                  } rounded-md px-2 text-xs font-bold cursor-pointer text-white h-10`}
+                  } rounded-md px-2 text-xs font-bold text-white h-10`}
                 >
                   Reset
                 </button>
@@ -342,7 +346,7 @@ function App() {
                 </div>
               </div>
             </div>
-            <div className="border-4 border-white rounded-md h-32">
+            <div className="border-4 border-white rounded-md h-48">
               <h2>Depth graph placeholder</h2>
               <DepthChart />
             </div>
