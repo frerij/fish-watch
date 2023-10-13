@@ -26,3 +26,4 @@ dist-ssr
 # Data files too large for git
 scripts/data/*
 
+.vercel

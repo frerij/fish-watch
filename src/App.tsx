@@ -14,7 +14,7 @@ import { CollectedChart } from "./components/CollectedChart";
 import { Sidebar } from "./components/Sidebar";
 import speciesToTag from "./data/speciesToTag.json";
 import { FullscreenSpinner } from "./components/FullscreenSpinner";
-import { DepthChart } from "./components/DepthChart";
+// import { DepthChart } from "./components/DepthChart";
 import { Species } from "./types";
 import originPNG from "./assets/originMarker.png";
 

@@ -1,6 +1,6 @@
 import release from "../data/data_release.json";
 import collection from "../data/data_collection.json";
-import { PieChart, Pie, Tooltip, Cell, Label } from "recharts";
+import { PieChart, Pie, Tooltip, Cell } from "recharts";
 import { useMemo } from "react";
 
 export function CollectedChart() {
@@ -13,7 +13,6 @@ export function CollectedChart() {
     let fishCount = 0;
 
     release.forEach((row) => {
-      const fishTag = row["Tag Code"];
       const acousticTagShort = row["Acoustic Tag"];
 
       // if selectedSpecies === "All" do this way
@@ -23,8 +22,8 @@ export function CollectedChart() {
         tagCodes[acousticTagShort] = true;
         tagCount++;
       }
-      if (!fishTags[fishTag]) {
-        fishTags[fishTag] = true;
+      if (!fishTags[row["Tag Code"]]) {
+        fishTags[row["Tag Code"]] = true;
         fishCount++;
       }
     });
