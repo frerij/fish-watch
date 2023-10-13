@@ -5,7 +5,7 @@ from geographiclib.geodesic import Geodesic
 
 geod = Geodesic.WGS84
 metersPerUnit = 850/160
-center = [48.88231415802141, -122.89835666919856]
+origin = [48.88231415802141, -122.89835666919856]
 
 # access long code here
 fishTagToSpecies = {}
@@ -40,10 +40,10 @@ with open("./data/fishTagToCollected.json", 'w', encoding='utf-8') as jsonf:
 
 # x -> longitude
 # y -> latitude
-def offsetFromCenter(x, y):
+def offsetFromOrigin(x, y):
 	heading = 90 - math.atan2(y,x) * 180 / math.pi
 	distance = math.sqrt(x**2 + y**2)
-	g = geod.Direct(center[0], center[1], heading, distance * metersPerUnit)
+	g = geod.Direct(origin[0], origin[1], heading, distance * metersPerUnit)
 	return [g['lat2'],g['lon2']]
 
 # Function to convert a CSV to JSON
@@ -64,7 +64,7 @@ def make_json(csvFilePath, jsonFilePath):
 			if (mse > 4):
 				continue
 			
-			newPoint = offsetFromCenter(float(row["X"]), float(row["Y"]))
+			newPoint = offsetFromOrigin(float(row["X"]), float(row["Y"]))
 			newEntry = {
 				"dateTime": row["Date_time"], 
 			   	"lat": newPoint[0], 
@@ -91,6 +91,9 @@ def make_json(csvFilePath, jsonFilePath):
 					tagToSpecies[species].append(row["Tag_code"])
 				else:
 					tagToSpecies[species] = [row["Tag_code"]]
+
+		for fish in data.values():
+			fish["positions"].sort(key=lambda x: x["dateTime"], reverse=False)
 
 	# Open a json writer, and use the json.dumps()
 	# function to dump data

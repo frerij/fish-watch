@@ -12,7 +12,7 @@ import {
 export function DepthChart() {
   const series = [
     {
-      name: "Series 1",
+      name: "G728BEA3B",
       data: [
         { category: "A", value: Math.random() },
         { category: "B", value: Math.random() },
@@ -20,7 +20,7 @@ export function DepthChart() {
       ],
     },
     {
-      name: "Series 2",
+      name: "G72D70D6B",
       data: [
         { category: "B", value: Math.random() },
         { category: "C", value: Math.random() },
@@ -28,7 +28,7 @@ export function DepthChart() {
       ],
     },
     {
-      name: "Series 3",
+      name: "G7226E443",
       data: [
         { category: "C", value: Math.random() },
         { category: "D", value: Math.random() },

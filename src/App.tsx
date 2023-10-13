@@ -55,6 +55,7 @@ function App() {
     return fishTags;
   }, [input, selectedSpecies]);
 
+  // useMemo caches result between renders
   const maxTimeRange = useMemo(() => {
     let max = 0;
     selectedFishTags.forEach((tag) => {
@@ -77,7 +78,8 @@ function App() {
       count = fishMap[input]["positions"].length;
     }
 
-    // setting max number of points to 10000 for performance
+    // setting max number of points to 10000 for individual fish or 20000
+    // for showing all of species
     // sampling using random value
     const maxPointsToShow = showAllOfSpecies ? 20000 : 10000;
     const sampleValue = count > maxPointsToShow ? maxPointsToShow / count : 1;
@@ -189,7 +191,6 @@ function App() {
 
   return (
     <>
-      {isLoading && <FullscreenSpinner />}
       <div className="flex grow flex-row max-h-screen gap-10 min-h-screen">
         <Sidebar
           setSelectedTag={handleChangeInput}
@@ -197,7 +198,7 @@ function App() {
           setSelectedSpecies={handleChangeSelectedSpecies}
           selectedSpecies={selectedSpecies}
         />
-
+        {isLoading && <FullscreenSpinner />}
         <div className="max-h-screen grow overflow-y-scroll pt-10 flex flex-row gap-8">
           <div className="flex flex-col pb-10 gap-8">
             <div className="p-4 max-w-10">
@@ -346,10 +347,10 @@ function App() {
                 </div>
               </div>
             </div>
-            <div className="border-4 border-white rounded-md h-48">
+            {/* <div className="border-4 border-white rounded-md h-48">
               <h2>Depth graph placeholder</h2>
               <DepthChart />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
