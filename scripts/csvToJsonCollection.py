@@ -20,7 +20,7 @@ def make_json(csvFilePath, jsonFilePath):
 
     # Open a json writer, and use the json.dumps()
     # function to dump data
-    with open(jsonFilePath, 'w', encoding='utf-8') as jsonf:
+	with open(jsonFilePath, 'w', encoding='utf-8') as jsonf:
 		jsonf.write(json.dumps(data, indent=4))
 		
 # Driver Code
