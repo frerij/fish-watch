@@ -1,4 +1,4 @@
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import "./App.css";
 import fishMap from "./data/fishMap.json";
 import {
@@ -25,10 +25,13 @@ const collectedToColor = {
 // select number of points path trail shows
 const numberOfPointsOnTrail = 20;
 
+// interval used for timer
+const playSpeed = 75;
+
 function App() {
   const [input, setInput] = useState("All");
   const [selectedSpecies, setSelectedSpecies] = useState("All");
-  const [time, setTime] = useState("0");
+  const [time, setTime] = useState(0);
   const [trailModeActive, setTrailModeActive] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -113,14 +116,25 @@ function App() {
   const trailPolylines = useMemo(() => {
     return trails.map((trail) => {
       return (
-        <Polyline
-          pathOptions={{
-            color: collectedToColor[trail.collected],
-            opacity: trail.isFishActive ? 1 : 0.2,
-            fill: false,
-          }}
-          positions={trail.trail.map((point) => [point.lat, point.lon])}
-        />
+        <>
+          <Polyline
+            pathOptions={{
+              color: "black",
+              opacity: trail.isFishActive ? 1 : 0.2,
+              fill: false,
+              weight: 5,
+            }}
+            positions={trail.trail.map((point) => [point.lat, point.lon])}
+          />
+          <Polyline
+            pathOptions={{
+              color: collectedToColor[trail.collected],
+              opacity: trail.isFishActive ? 1 : 0.2,
+              fill: false,
+            }}
+            positions={trail.trail.map((point) => [point.lat, point.lon])}
+          />
+        </>
       );
     });
   }, [trails]);
@@ -156,6 +170,17 @@ function App() {
       setInput("All");
     });
   };
+
+  useEffect(() => {
+    while (time < maxTimeRange && isPlaying) {
+      const timer = window.setInterval(() => {
+        setTime(time + 1);
+      }, playSpeed);
+      return () => {
+        window.clearInterval(timer);
+      };
+    }
+  }, [isPlaying, maxTimeRange, time]);
 
   return (
     <>
@@ -226,10 +251,11 @@ function App() {
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
+
                 <Marker position={[48.88231415802141, -122.89835666919856]}>
                   <Popup>Selected origin point</Popup>
+                  {pointMarkers}
                 </Marker>
-                {pointMarkers}
                 {trailPolylines}
               </MapContainer>
             </div>
@@ -247,7 +273,9 @@ function App() {
                 </button>
                 <button
                   disabled={!trailModeActive}
-                  onClick={() => setIsPlaying(!isPlaying)}
+                  onClick={() => {
+                    setIsPlaying(!isPlaying);
+                  }}
                   className={`${
                     isPlaying && trailModeActive === true
                       ? "bg-red hover:bg-red/70"
@@ -262,7 +290,7 @@ function App() {
                   disabled={!trailModeActive}
                   onClick={() => {
                     setIsPlaying(false);
-                    setTime("0");
+                    setTime(0);
                   }}
                   className={`${
                     trailModeActive
@@ -291,7 +319,7 @@ function App() {
                     } transparent h-1.5 grow appearance-none rounded-lg border-transparent bg-white`}
                     id="timeRange"
                     value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                    onChange={(e) => setTime(Number(e.target.value))}
                     min={0}
                     max={maxTimeRange}
                   />

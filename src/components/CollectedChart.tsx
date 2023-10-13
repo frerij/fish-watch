@@ -6,7 +6,7 @@ import { useMemo } from "react";
 export function CollectedChart() {
   const collectedFishCount = collection.length;
 
-  const { tagCount, fishCount } = useMemo(() => {
+  const { fishCount } = useMemo(() => {
     const tagCodes: Record<string, boolean> = {};
     const fishTags: Record<string, boolean> = {};
     let tagCount = 0;
@@ -15,6 +15,10 @@ export function CollectedChart() {
     release.forEach((row) => {
       const fishTag = row["Tag Code"];
       const acousticTagShort = row["Acoustic Tag"];
+
+      // if selectedSpecies === "All" do this way
+      // otherwise, only count through the species selected
+
       if (acousticTagShort !== "" && !tagCodes[acousticTagShort]) {
         tagCodes[acousticTagShort] = true;
         tagCount++;
@@ -28,38 +32,17 @@ export function CollectedChart() {
   }, []);
 
   const data = [
-    { name: "Collected Fish", value: collectedFishCount },
-    { name: "Not Collected Fish", value: fishCount - collectedFishCount },
+    {
+      name: "Collected Fish",
+      value: collectedFishCount,
+      fill: "blue",
+    },
+    {
+      name: "Not Collected Fish",
+      value: fishCount - collectedFishCount,
+      fill: "yellow",
+    },
   ];
-
-  const colors = ["#0088FE", "#FF8042"];
-  const radian = Math.PI / 180;
-
-  const renderCustomizedLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent,
-    index,
-  }) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * radian);
-    const y = cy + radius * Math.sin(-midAngle * radian);
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={x > cx ? "start" : "end"}
-        dominantBaseline="central"
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
 
   return (
     <>
@@ -70,13 +53,12 @@ export function CollectedChart() {
           data={data}
           cx="50%"
           cy="50%"
+          fill="#ffffff"
           outerRadius={80}
-          fill="#8884d8"
           label
-          className="border border-rose-200"
         />
         {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+          <Cell key={`cell-${index}`} fill={data[index].fill} />
         ))}
         <Tooltip />
       </PieChart>
