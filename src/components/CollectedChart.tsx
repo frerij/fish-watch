@@ -1,6 +1,6 @@
 import release from "../data/data_release.json";
 import collection from "../data/data_collection.json";
-import { PieChart, Pie, Tooltip, Cell } from "recharts";
+import { PieChart, Pie, Tooltip, Cell, Label } from "recharts";
 import { useMemo } from "react";
 
 export function CollectedChart() {
@@ -43,6 +43,32 @@ export function CollectedChart() {
       fill: "yellow",
     },
   ];
+  const RADIAN = Math.PI / 180;
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+    index,
+  }) => {
+    const radius = 100;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
 
   return (
     <>
@@ -57,7 +83,7 @@ export function CollectedChart() {
           cy="50%"
           fill="#ffffff"
           outerRadius={80}
-          label
+          label={renderCustomizedLabel}
         />
         {data.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={data[index].fill} />
