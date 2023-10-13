@@ -14,10 +14,13 @@ import { CollectedChart } from "./components/CollectedChart";
 import { Sidebar } from "./components/Sidebar";
 import speciesToTag from "./data/speciesToTag.json";
 import { FullscreenSpinner } from "./components/FullscreenSpinner";
+import { DepthChart } from "./components/DepthChart";
+
+import { Species } from "./types";
 
 // blue and yellow for colorblind accessibility
 // limited to leaflet color options - add hex to tailwind config
-// to use elsewhere
+// to use elsewhere but hardcoded on legend
 const collectedToColor = {
   true: "blue",
   false: "yellow",
@@ -31,11 +34,12 @@ const playSpeed = 90;
 
 function App() {
   const [input, setInput] = useState("All");
-  const [selectedSpecies, setSelectedSpecies] = useState("All");
+  const [selectedSpecies, setSelectedSpecies] = useState<Species | "All">(
+    "All"
+  );
   const [time, setTime] = useState(0);
   const [trailModeActive, setTrailModeActive] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-
   const [isLoading, startTransition] = useTransition();
 
   const selectedFishTags = useMemo(() => {
@@ -340,6 +344,7 @@ function App() {
             </div>
             <div className="border-4 border-white rounded-md h-32">
               <h2>Depth graph placeholder</h2>
+              <DepthChart />
             </div>
           </div>
         </div>

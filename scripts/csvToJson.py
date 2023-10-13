@@ -99,8 +99,6 @@ def make_json(csvFilePath, jsonFilePath):
 
 	with open("../src/data/speciesToTag.json", 'w', encoding='utf-8') as jsonf:
 		jsonf.write(json.dumps(tagToSpecies, indent=4))
-		
-# Driver Code
 
 # Decide the two file paths according to your
 # computer system
