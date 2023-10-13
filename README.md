@@ -121,6 +121,8 @@ Map color testing examples
 - **Development:**
   - Testing - especially if data was not bundled with project
   - Break more parts of App into components for ease of use and readability
+  - Upload data to Cloudflare or AWS S3 then use fetch to make build work on Vercel
+  - Fix types for fishMap data
 
 ## References
 
